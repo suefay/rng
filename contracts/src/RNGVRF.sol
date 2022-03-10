@@ -17,6 +17,8 @@ contract RNGVRF is RNGInterface, VRFConsumerBase, Ownable {
   mapping(uint32 => uint256) internal _randomNumbers; // mapping from request IDs to random numbers
   mapping(uint256 => uint32) internal _vrfRequestIds; // mapping from VRF request IDs to internal request IDs
 
+  mapping(address => bool) internal _auth; // authorization mapping
+
   /**
    * @notice Triggered when the VRF coordinator is set
    * @param vrfCoordinator Address of the VRF coordinator
@@ -34,6 +36,22 @@ contract RNGVRF is RNGInterface, VRFConsumerBase, Ownable {
    * @param fee Fee to be paid for the randomness request
    */
   event FeeSet(uint256 fee);
+
+  /**
+   * @notice Triggered when the given address is authorized
+   * @param addr The address to be granted permission to the contract
+   * @param authorized Indicate that the address is authorized or unauthorized
+   */
+  event Authorized(address addr, bool authorized);
+
+  /**
+   * @notice Check if the given sender is authorized
+   * @param _sender The sender
+   */
+  modifier authorized(address _sender) {
+    require(_sender == owner() || _auth[_sender], "RNGVRF: unauthorized sender");
+    _;
+  }
 
   /**
    * @notice Constructor
@@ -57,7 +75,7 @@ contract RNGVRF is RNGInterface, VRFConsumerBase, Ownable {
   function requestRandomNumber()
     external
     override
-    onlyOwner
+    authorized(msg.sender)
     returns (uint32 requestId)
   {
     uint256 vrfRequestId = _vrfCoordinator.randomnessRequest(keyHash, fee);
@@ -115,6 +133,7 @@ contract RNGVRF is RNGInterface, VRFConsumerBase, Ownable {
     require(vrfCoordinator_ != address(0), "RNGVRF: VRF coordinator must not be zero address");
 
     _vrfCoordinator = VRFCoordinatorInterface(vrfCoordinator_);
+
     emit VRFCoordinatorSet(_vrfCoordinator);
   }
 
@@ -126,6 +145,7 @@ contract RNGVRF is RNGInterface, VRFConsumerBase, Ownable {
     require(_keyHash != 0, "RNGVRF: key hash must not be empty");
 
     keyHash = _keyHash;
+    
     emit KeyHashSet(_keyHash);
   }
 
@@ -135,7 +155,19 @@ contract RNGVRF is RNGInterface, VRFConsumerBase, Ownable {
    */
   function setFee(uint256 _fee) public onlyOwner {
     fee = _fee;
+
     emit FeeSet(_fee);
+  }
+
+  /**
+   * @notice Authorize the given address
+   * @param _address The address to be granted permission to the contract
+   * @param _authorized Indicate that the address is authorized or unauthorized
+   */
+  function authorize(address _address, bool _authorized) external onlyOwner {
+    _auth[_address] = _authorized;
+
+    emit Authorized(_address, _authorized);
   }
 
   /**
