@@ -1,0 +1,16 @@
+{
+  "name": "rng",
+  "version": "1.0.0",
+  "description": "Contracts for the Random Number Generator",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suefay/rng.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "hardhat": "^2.9.1"
+  }
+}

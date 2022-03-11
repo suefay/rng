@@ -129,9 +129,9 @@ contract RNGVRF is RNGInterface, VRFConsumerBase, Ownable {
    * @notice Set the VRF coordinator
    * @param vrfCoordinator_ Address of the VRF coordinator
    */
-  function setVRFCoordinator(address vrfCoordinator_) public onlyOwner {
+  function setVRFCoordinator(address vrfCoordinator_) internal {
     require(vrfCoordinator_ != address(0), "RNGVRF: VRF coordinator must not be zero address");
-
+    
     _vrfCoordinator = VRFCoordinatorInterface(vrfCoordinator_);
 
     emit VRFCoordinatorSet(_vrfCoordinator);
