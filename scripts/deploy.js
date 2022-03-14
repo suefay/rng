@@ -3,7 +3,7 @@ const Config = require("../vrf.config.js");
 async function deploy() {
     const [deployer] = await ethers.getSigners();
 
-    console.log("Deploying contracts with the account:", deployer.address);
+    console.log("Deploying RNGVRF with the account:", deployer.address);
 
     console.log("Account balance:", (await deployer.getBalance()).toString());
 
